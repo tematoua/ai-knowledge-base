@@ -3,7 +3,7 @@ from langchain_deepseek import ChatDeepSeek
 # 初始化模型
 llm = ChatDeepSeek(
     model="deepseek-chat",
-    api_key="sk-8858b069139141b99055010fc5f9467c"
+    api_key="sk-###"
 )
 
 # 第一个对话
