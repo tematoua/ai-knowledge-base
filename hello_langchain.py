@@ -1,11 +1,15 @@
+"""
+Hello LangChain - 测试 DeepSeek LLM 连接
+"""
+import os
 from langchain_deepseek import ChatDeepSeek
 
-# 初始化模型
+api_key = os.environ.get("DEEPSEEK_API_KEY") or input("请输入 DEEPSEEK_API_KEY: ")
+
 llm = ChatDeepSeek(
     model="deepseek-chat",
-    api_key="sk-8858b069139141b99055010fc5f9467c"
+    api_key=api_key,
 )
 
-# 第一个对话
 response = llm.invoke("你好，请用一句话介绍自己")
 print(response.content)
