@@ -19,6 +19,7 @@ from src.document_loader import load_document
 from src.text_splitter import split_documents
 from src.vector_store import get_vector_store
 from src.rag_chain import ask, ask_with_sources
+from src.builtin_kb import init_builtin_kb, get_builtin_kb_status, rebuild_builtin_kb
 from config.settings import settings
 
 console = Console()
@@ -167,6 +168,74 @@ def index(file: str, dir: str, reset: bool, show_chunks: bool):
 
 
 @cli.command()
+@click.option('--force', '-f', is_flag=True, help='强制重建内置知识库')
+def init(force: bool):
+    """
+    初始化内置知识库
+    
+    扫描 data/papers/ 目录，自动索引所有论文到向量数据库。
+    无需手动指定文件，一键完成。
+    
+    示例:
+        python cli.py init           # 初始化（已有则跳过）
+        python cli.py init --force   # 强制重建
+    """
+    print_banner()
+
+    # 先检查状态
+    kb_status = get_builtin_kb_status()
+
+    console.print(f"\n[bold]📚 内置知识库状态[/bold]")
+    console.print(f"  论文目录: {settings.PAPERS_DIR}")
+    console.print(f"  论文数: {kb_status['papers_count']}")
+
+    if kb_status["initialized"] and not force:
+        console.print(f"\n[green]✅ 内置知识库已就绪[/green]")
+        if kb_status.get("pending_papers"):
+            console.print(f"[yellow]🆕 检测到 {len(kb_status['pending_papers'])} 篇新论文未索引[/yellow]")
+            console.print(f"[dim]   使用 --force 重建可包含新论文[/dim]")
+        return
+
+    if not kb_status["paper_names"]:
+        console.print("\n[yellow]📭 data/papers/ 目录为空[/yellow]")
+        console.print(f"[dim]   请将论文PDF放入: {settings.PAPERS_DIR}[/dim]")
+        return
+
+    # 开始初始化
+    console.print(f"\n[blue]🔧 正在初始化内置知识库 ({len(kb_status['paper_names'])} 篇论文)...[/blue]\n")
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        def progress_cb(stage, info):
+            if stage == "start":
+                progress.add_task(f"准备索引 {info['total']} 篇论文...", total=None)
+            elif stage == "clearing":
+                progress.add_task("清空旧索引...", total=None)
+            elif stage == "indexing":
+                progress.add_task(
+                    f"[{info['current']}/{info['total']}] {info['name']}...",
+                    total=None
+                )
+
+        result = init_builtin_kb(force=force, progress_callback=progress_cb)
+
+    console.print(f"\n[bold]{result['message']}[/bold]")
+
+    if result.get("paper_names"):
+        console.print("\n[bold]📄 已索引论文:[/bold]")
+        for name in result["paper_names"]:
+            console.print(f"  [green]• {name}[/green]")
+
+    if result.get("errors"):
+        console.print("\n[bold yellow]⚠️ 跳过的文件:[/bold yellow]")
+        for e in result["errors"]:
+            console.print(f"  [yellow]  • {e['file']}: {e['error']}[/yellow]")
+
+
+@cli.command()
 @click.argument('question')
 @click.option('--temperature', '-t', default=0.7, help='LLM温度参数 (0.0-1.0)')
 @click.option('--top-k', '-k', default=None, type=int, help='检索数量（覆盖默认配置）')
@@ -294,49 +363,58 @@ def status():
     
     console.print(config_table)
     
-    # 索引状态
-    console.print("\n[bold]索引状态[/bold]")
+    # === 内置知识库状态 ===
+    kb_status = get_builtin_kb_status()
     
+    console.print("\n[bold]📚 内置知识库[/bold]")
+    console.print(f"  论文目录: {settings.PAPERS_DIR}")
+    if kb_status["initialized"]:
+        console.print(f"  [green]状态: ✅ 已就绪[/green]")
+        console.print(f"  论文数: {kb_status['papers_count']}")
+        console.print(f"  文本块: {kb_status['chunks_count']}")
+        if kb_status.get("last_init"):
+            console.print(f"  初始化时间: {kb_status['last_init'][:19]}")
+    else:
+        console.print(f"  [yellow]状态: 🟡 未初始化[/yellow]")
+        console.print(f"  待索引论文: {len(kb_status['paper_names'])} 篇")
+        console.print(f"  [dim]运行 'python cli.py init' 初始化[/dim]")
+    
+    if kb_status.get("paper_names"):
+        console.print("\n  [bold]论文列表:[/bold]")
+        for name in kb_status["paper_names"]:
+            indexed = "✅" if name in kb_status.get("indexed_papers", []) else "🆕"
+            console.print(f"    {indexed} {name}")
+    
+    if kb_status.get("pending_papers"):
+        console.print(f"\n  [yellow]🆕 新增待索引: {len(kb_status['pending_papers'])} 篇[/yellow]")
+    
+    # === 用户上传状态 ===
     vector_store = get_vector_store()
+    console.print("\n[bold]📁 用户上传论文[/bold]")
     try:
         vector_store.load()
-        console.print("[green] 向量数据库已加载[/green]")
-        
-        # 尝试获取统计信息
         try:
-            # Chroma的集合信息
             collection = vector_store.db._collection
-            count = collection.count()
-            console.print(f"[green]  文档数量: {count}[/green]")
+            all_docs = collection.get()
+            metadatas = all_docs.get("metadatas", [])
             
-            # 统计来源
-            if count > 0:
-                # 获取所有文档
-                all_docs = vector_store.db._collection.get()
-                metadatas = all_docs.get("metadatas", [])
-                
-                sources = {}
-                for meta in metadatas:
-                    if meta and "source" in meta:
-                        src = meta["source"]
-                        sources[src] = sources.get(src, 0) + 1
-                
-                if sources:
-                    console.print("\n[bold]已索引文件:[/bold]")
-                    for src, count in sorted(sources.items()):
-                        console.print(f"  [green]• {src} ({count} 块)[/green]")
+            user_sources = {}
+            for meta in metadatas:
+                if meta and "source" in meta and meta.get("source_type") != "builtin":
+                    src = meta["source"]
+                    user_sources[src] = user_sources.get(src, 0) + 1
+            
+            if user_sources:
+                for src, count in sorted(user_sources.items()):
+                    console.print(f"  [green]• {src} ({count} 块)[/green]")
+            else:
+                console.print("  [dim]（暂无用户上传）[/dim]")
                 
         except Exception as e:
             console.print(f"[dim]  无法获取详细统计: {e}[/dim]")
             
-    except Exception as e:
-        console.print(f"[yellow] 向量数据库未初始化或加载失败: {e}[/yellow]")
-    
-    # 数据目录检查
-    papers_dir = settings.PAPERS_DIR
-    if papers_dir.exists():
-        files = list(papers_dir.glob("*.pdf")) + list(papers_dir.glob("*.txt")) + list(papers_dir.glob("*.md"))
-        console.print(f"\n[dim]数据目录: {papers_dir} ({len(files)} 个文件)[/dim]")
+    except Exception:
+        console.print("  [yellow]向量数据库未初始化[/yellow]")
 
 
 if __name__ == "__main__":

@@ -41,6 +41,11 @@ class Settings:
     
     # 数据目录
     PAPERS_DIR = BASE_DIR / "data" / "papers"
+    
+    # 内置知识库配置
+    BUILTIN_KB_ENABLED = os.getenv("BUILTIN_KB_ENABLED", "true").lower() == "true"
+    BUILTIN_KB_AUTO_INIT = os.getenv("BUILTIN_KB_AUTO_INIT", "true").lower() == "true"
+    BUILTIN_KB_FORCE_INIT = os.getenv("BUILTIN_KB_FORCE_INIT", "false").lower() == "true"
 
 # 全局配置实例
 settings = Settings()

@@ -2,20 +2,31 @@
 langchain>=0.1.0
 langchain-community>=0.0.10
 langchain-openai>=0.0.5
-langchain-huggingface>=0.0.1
-langchain-text-splitters>=0.0.1
+
 # 向量数据库
 chromadb>=0.4.18
+
 # 文档处理
 pypdf>=3.17.0
 pymupdf>=1.23.0
-# 本地Embedding模型
-sentence-transformers>=2.2.0
-# 环境变量
+python-docx>=0.8.11
+unstructured>=0.11.0
+markdown>=3.5.0
+
+# HTTP客户端
+requests>=2.31.0
+httpx>=0.25.0
+
+# 环境变量管理
 python-dotenv>=1.0.0
+
 # 命令行工具
 click>=8.1.0
 rich>=13.7.0
-# 其他
+
+# 其他工具
 numpy>=1.24.0
 tqdm>=4.66.0
+
+# Web界面 (Day 5)
+gradio>=4.0.0
