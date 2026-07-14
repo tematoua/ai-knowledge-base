@@ -32,171 +32,124 @@ from config.settings import settings
 
 # 自定义CSS
 CUSTOM_CSS = """
-/* 全局字体 */
+/* 全局 */
 .gradio-container {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif !important;
+    background: #f5f5f7 !important;
 }
 
-/* 标题区域样式 */
-.header-container {
-    text-align: center;
-    padding: 20px 0 10px 0;
-    margin-bottom: 10px;
-}
-
-.header-title {
-    font-size: 2.2em !important;
-    font-weight: 700 !important;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 8px !important;
-}
-
-.header-subtitle {
-    font-size: 1.1em;
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.header-desc {
-    font-size: 0.95em;
-    color: #888;
-    background: linear-gradient(90deg, #f0f4ff 0%, #e8f0ff 100%);
-    padding: 8px 20px;
-    border-radius: 20px;
-    display: inline-block;
-    margin-top: 5px;
-}
-
-/* 左侧卡片 */
-.side-card {
-    background: linear-gradient(180deg, #fafbff 0%, #f5f7ff 100%);
-    border-radius: 12px;
-    padding: 16px;
-    border: 1px solid #e0e6ff;
-    margin-bottom: 12px;
-}
-
-.side-card-title {
-    font-size: 1.2em;
-    font-weight: 600;
-    color: #4a5568;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #e0e6ff;
-}
-
-/* 状态框美化 */
-.status-box {
-    background: #ffffff !important;
-    border-radius: 10px !important;
-    border: 1px solid #e2e8f0 !important;
-    font-size: 0.9em !important;
-    line-height: 1.6 !important;
-}
-
-/* 按钮样式 */
-button.primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    border: none !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    transition: all 0.3s ease !important;
-}
-
-button.primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4) !important;
-}
-
-button.secondary {
-    border-radius: 8px !important;
-    font-weight: 500 !important;
-}
-
-/* 聊天区域 */
-.chat-container {
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
-}
-
-/* 输入框 */
-.input-box textarea {
-    border-radius: 10px !important;
-    border: 2px solid #e2e8f0 !important;
-    transition: border-color 0.3s ease !important;
-}
-
-.input-box textarea:focus {
-    border-color: #667eea !important;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-}
-
-/* 示例问题 */
-.examples-row {
-    margin-top: 10px;
-}
-
-.examples-row .example-btn {
-    background: #f7fafc !important;
-    border: 1px solid #e2e8f0 !important;
+/* 所有卡片统一样式 */
+.gradio-group, .panel {
+    background: #fff !important;
+    border: 1px solid #eaecef !important;
     border-radius: 16px !important;
-    padding: 4px 12px !important;
-    font-size: 0.85em !important;
-    color: #4a5568 !important;
-    transition: all 0.2s ease !important;
 }
 
-.examples-row .example-btn:hover {
-    background: #edf2f7 !important;
-    border-color: #cbd5e0 !important;
+/* 标题 */
+.header-container { text-align: center; padding: 24px 0 12px 0; }
+.header-title {
+    font-size: 1.7em !important; font-weight: 700 !important;
+    color: #1a1a2e; margin-bottom: 2px !important; letter-spacing: -0.5px;
+}
+.header-subtitle { font-size: 0.9em; color: #9ca3af; }
+.header-desc {
+    font-size: 0.82em; color: #9ca3af; background: #fff;
+    padding: 5px 16px; border-radius: 20px;
+    display: inline-block; margin-top: 6px;
+    border: 1px solid #eaecef;
 }
 
-/* 索引结果框 */
-.index-result {
-    border-radius: 10px !important;
-    font-size: 0.9em !important;
+/* 折叠面板 */
+.accordion {
+    background: #fff !important;
+    border: 1px solid #eaecef !important;
+    border-radius: 16px !important;
 }
+.accordion > .label-wrap {
+    color: #1a1a2e !important; font-weight: 600 !important;
+    font-size: 0.92em !important; padding: 8px 0 !important;
+}
+
+/* 状态框 & 索引结果 */
+.status-box textarea, .index-result textarea {
+    border-radius: 12px !important;
+    border: 1px solid #eaecef !important;
+    background: #fafbfc !important;
+    padding: 12px !important;
+}
+
+/* 按钮 */
+button, .gr-button {
+    border-radius: 12px !important;
+    transition: all 0.15s !important;
+}
+button.primary {
+    background: #1a1a2e !important; border: none !important;
+    font-weight: 600 !important; min-height: 44px !important;
+}
+button.primary:hover { background: #2d2d4a !important; }
+button.secondary {
+    background: #f5f5f7 !important; color: #555 !important;
+    border: 1px solid #eaecef !important; font-weight: 500 !important;
+}
+button.secondary:hover { background: #eeeef2 !important; }
+
+/* 输入行对齐修复 */
+/* 让 Row 内的子元素垂直居中 */
+.form > .gr-row, .gr-box > .gr-row {
+    align-items: center !important;
+}
+/* 发送按钮 & 输入框对齐 */
+.input-box {
+    display: flex !important; align-items: center !important;
+}
+.input-box textarea, .input-box input {
+    border-radius: 12px !important;
+    border: 1.5px solid #e0e3e8 !important;
+    background: #fafbfc !important;
+    padding: 11px 14px !important;
+    font-size: 13.5px !important;
+    min-height: 44px !important;
+    transition: border-color 0.2s !important;
+    line-height: 22px !important;
+}
+.input-box textarea:focus, .input-box input:focus {
+    border-color: #1a1a2e !important;
+    box-shadow: 0 0 0 3px rgba(26,26,46,0.06) !important;
+}
+
+/* 聊天区 */
+.chatbot {
+    border: 1px solid #eaecef !important;
+    border-radius: 16px !important;
+    background: #fff !important;
+}
+.chatbot .message-wrap { border-radius: 14px !important; }
+
+/* 文件上传区 */
+.file-preview { border-radius: 12px !important; }
+input[type="file"] { border-radius: 12px !important; }
+
+/* 示例按钮 */
+.examples-row .example-btn {
+    background: #f8f9fb !important;
+    border: 1px solid #eaecef !important;
+    border-radius: 18px !important;
+    padding: 5px 14px !important;
+    font-size: 0.82em !important; color: #555 !important;
+}
+.examples-row .example-btn:hover { background: #f0f1f5 !important; }
 
 /* 底部提示 */
 .footer-hint {
-    text-align: center;
-    color: #a0aec0;
-    font-size: 0.8em;
-    margin-top: 10px;
-    padding: 8px;
-    background: #f7fafc;
-    border-radius: 8px;
+    text-align: center; color: #b0b0c0; font-size: 0.76em;
+    margin-top: 10px; padding: 10px;
+    background: #fff; border-radius: 16px;
+    border: 1px solid #f0f1f5;
 }
 
-/* 加载动画 */
-.loading-spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid #e2e8f0;
-    border-top: 2px solid #667eea;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-right: 8px;
-    vertical-align: middle;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* 分隔线美化 */
-hr.divider {
-    border: none;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
-    margin: 16px 0;
-}
+/* 分割线 */
+hr.divider { border: none; height: 1px; background: #f0f1f5; margin: 14px 0; }
 """
 
 
@@ -462,8 +415,8 @@ def create_ui():
     
     # 自定义主题
     theme = gr.themes.Soft(
-        primary_hue="violet",
-        secondary_hue="indigo",
+        primary_hue="slate",
+        secondary_hue="gray",
         neutral_hue="slate",
     )
     
@@ -511,10 +464,8 @@ def create_ui():
                 
                 gr.HTML('<hr class="divider">')
                 
-                # 系统状态卡片
-                gr.HTML('<div class="side-card-title">📊 系统状态</div>')
-                
-                with gr.Group(elem_classes=["side-card"]):
+                # 系统状态卡片（可折叠，默认收起）
+                with gr.Accordion("📊 系统状态", open=False, elem_classes=["side-card"]):
                     status_box = gr.Textbox(
                         label="",
                         lines=12,
@@ -558,7 +509,7 @@ def create_ui():
                 )
                 
                 # 输入区域
-                with gr.Row():
+                with gr.Row(equal_height=True):
                     msg_input = gr.Textbox(
                         label="",
                         placeholder="输入你的问题，例如：Transformer中的注意力机制是怎么计算的？",
